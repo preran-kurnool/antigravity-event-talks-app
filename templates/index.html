@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BigQuery Release Notes Explorer</title>
+    <meta name="description" content="A premium, modern interface for tracking, searching, and sharing Google Cloud BigQuery release notes.">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Main Style Sheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Background Gradients for Aesthetics -->
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+    
+    <div class="app-container">
+        <!-- Header Section -->
+        <header class="app-header">
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2005/svg">
+                        <path d="M21 7V17C21 19.2091 16.9706 21 12 21C7.02944 21 3 19.2091 3 17V7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M21 7C21 9.20914 16.9706 11 12 11C7.02944 11 3 9.20914 3 7C3 4.79086 7.02944 3 12 3C16.9706 3 21 4.79086 21 7Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M3 12C3 14.2091 7.02944 16 12 16C16.9706 16 21 14.2091 21 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="title-details">
+                    <h1>BigQuery Release Notes</h1>
+                    <p class="subtitle">Stay updated with the latest Google Cloud BigQuery features, changes, and updates.</p>
+                </div>
+            </div>
+            <div class="actions-area">
+                <div class="status-indicator">
+                    <span class="status-dot"></span>
+                    <span class="status-text" id="last-updated-text">Checking feed...</span>
+                </div>
+                <button id="refresh-btn" class="btn btn-primary" title="Refresh Release Notes">
+                    <svg id="refresh-spinner" class="icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2005/svg">
+                        <path d="M21.5 2V6H17.5M21.34 15.57C20.44 18.15 18.18 20 15.5 20C11.91 20 9 17.09 9 13.5C9 9.91 11.91 7 15.5 7C17.74 7 19.71 8.13 20.89 9.85" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Refresh</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Metrics & Quick Filters Dashboard -->
+        <section class="dashboard-stats">
+            <div class="stat-card active-filter" data-filter="all" id="stat-all">
+                <div class="stat-icon-wrapper all">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2005/svg"><path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-label">Total Updates</span>
+                    <span class="stat-value" id="count-all">-</span>
+                </div>
+            </div>
+            <div class="stat-card" data-filter="feature" id="stat-feature">
+                <div class="stat-icon-wrapper feature">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2005/svg"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-label">Features</span>
+                    <span class="stat-value" id="count-feature">-</span>
+                </div>
+            </div>
+            <div class="stat-card" data-filter="change" id="stat-change">
+                <div class="stat-icon-wrapper change">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2005/svg"><path d="M21.5 2V6H17.5M2.5 22V18H6.5M21.34 15.57C20.44 18.15 18.18 20 15.5 20C11.91 20 9 17.09 9 13.5C9 9.91 11.91 7 15.5 7M2.66 8.43C3.56 5.85 5.82 4 8.5 4C12.09 4 15 6.91 15 10.5C15 14.09 12.09 17 8.5 17" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-label">Changes</span>
+                    <span class="stat-value" id="count-change">-</span>
+                </div>
+            </div>
+            <div class="stat-card" data-filter="deprecation" id="stat-deprecation">
+                <div class="stat-icon-wrapper deprecation">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2005/svg"><path d="M12 9V14M12 17.01H12.01M12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-label">Deprecations</span>
+                    <span class="stat-value" id="count-deprecation">-</span>
+                </div>
+            </div>
+            <div class="stat-card" data-filter="fix" id="stat-fix">
+                <div class="stat-icon-wrapper fix">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2005/svg"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-label">Fixes</span>
+                    <span class="stat-value" id="count-fix">-</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Search and Filter Controls -->
+        <div class="controls-panel">
+            <div class="search-bar">
+                <svg class="search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2005/svg">
+                    <path d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <input type="text" id="search-input" placeholder="Search updates (e.g. Gemini, GA, AI, JDBC)..." autocomplete="off">
+                <button id="clear-search-btn" class="clear-btn" aria-label="Clear search">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2005/svg"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+            </div>
+            <div class="filters-row">
+                <div class="dropdown-wrapper">
+                    <label for="sort-select">Sort by</label>
+                    <select id="sort-select">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                    </select>
+                </div>
+                <div class="active-filters-badges" id="active-filters-container" style="display: none;">
+                    <span class="active-badge-label">Active Filters:</span>
+                    <div class="badges-wrapper" id="badges-wrapper"></div>
+                    <button class="clear-all-filters-btn" id="clear-filters-btn">Clear All</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Release Notes Listing Grid -->
+        <main class="content-area">
+            <div class="loading-state" id="loading-state">
+                <div class="loading-spinner-wrapper">
+                    <div class="spinner"></div>
+                </div>
+                <p>Fetching the latest release notes from Google Cloud...</p>
+            </div>
+
+            <div class="error-state" id="error-state" style="display: none;">
+                <div class="error-icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2005/svg"><path d="M12 8V12M12 16H12.01M22 12C22 17.5228 17.5228 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <h3>Failed to load release notes</h3>
+                <p id="error-message">Could not establish connection to the update feed.</p>
+                <button class="btn btn-primary" id="retry-btn">Try Again</button>
+            </div>
+
+            <div class="empty-state" id="empty-state" style="display: none;">
+                <div class="empty-icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2005/svg"><path d="M9.663 17h4.673M12 3v1m6.364.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 01-2 2h0a2 2 0 01-2-2v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <h3>No release notes match your criteria</h3>
+                <p>Try resetting the search terms or category filters.</p>
+                <button class="btn btn-secondary" id="reset-filters-btn">Reset Filters</button>
+            </div>
+
+            <div class="notes-grid" id="notes-grid" style="display: none;">
+                <!-- Dynamically populated release notes cards -->
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>Made with ❤️ for Google Cloud and BigQuery Developers.</p>
+            <p class="feed-source-link">Data parsed directly from <a href="https://docs.cloud.google.com/feeds/bigquery-release-notes.xml" target="_blank" rel="noopener noreferrer">official Google Cloud RSS Atom Feed</a></p>
+        </footer>
+    </div>
+
+    <!-- Tweet Composer Modal -->
+    <div class="modal-overlay" id="tweet-modal" style="display: none;">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>Share on X / Twitter</h3>
+                <button class="close-btn" id="close-modal-btn" aria-label="Close modal">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2005/svg"><path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </button>
+            </div>
+            
+            <div class="modal-body">
+                <!-- X / Twitter Card Preview (Premium aesthetic) -->
+                <div class="x-card-preview">
+                    <div class="x-author-row">
+                        <div class="x-avatar">BQ</div>
+                        <div class="x-author-meta">
+                            <span class="x-display-name">Cloud Analytics Update</span>
+                            <span class="x-username">@GoogleBigQuery</span>
+                        </div>
+                        <div class="x-logo">
+                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                        </div>
+                    </div>
+                    
+                    <div class="x-tweet-editor-container">
+                        <textarea id="tweet-textarea" rows="5" maxlength="280" placeholder="What's happening?"></textarea>
+                    </div>
+
+                    <!-- Custom card link attachment preview -->
+                    <div class="x-link-attachment" id="x-link-preview">
+                        <div class="x-link-content">
+                            <span class="x-link-domain">cloud.google.com</span>
+                            <span class="x-link-title" id="x-preview-title">BigQuery Release Notes - Google Cloud</span>
+                            <span class="x-link-desc" id="x-preview-desc">Read the official update regarding BigQuery analytics features, optimizations, and API updates.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer area of the editor modal -->
+                <div class="modal-actions">
+                    <div class="character-counter-container">
+                        <svg class="progress-ring" width="28" height="28">
+                            <circle class="progress-ring-bg" stroke="rgba(255,255,255,0.1)" stroke-width="3" fill="transparent" r="11" cx="14" cy="14"/>
+                            <circle id="progress-circle" class="progress-ring-fill" stroke="#1d9bf0" stroke-width="3" fill="transparent" r="11" cx="14" cy="14"/>
+                        </svg>
+                        <span id="char-counter" class="char-count">280</span>
+                    </div>
+                    <button class="btn btn-tweet" id="publish-tweet-btn">
+                        <svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                        <span>Tweet Update</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications Area -->
+    <div id="toast-container" class="toast-container"></div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
