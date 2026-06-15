@@ -604,12 +604,62 @@ body {
     height: 16px;
 }
 
+/* Truncation & Card Expansion */
+.card-body-wrapper {
+    max-height: 180px;
+    overflow: hidden;
+    position: relative;
+    transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    margin-bottom: 8px;
+}
+.card-fade-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    background: linear-gradient(to top, #141a2d 0%, transparent 100%);
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+.card-body-wrapper.expanded .card-fade-overlay {
+    opacity: 0;
+}
+.toggle-expand-btn {
+    background: transparent;
+    border: none;
+    color: var(--primary-light);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 6px 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 16px;
+    align-self: flex-start;
+    transition: color 0.2s;
+    outline: none;
+}
+.toggle-expand-btn:hover {
+    color: white;
+}
+.toggle-expand-btn svg {
+    width: 12px;
+    height: 12px;
+    transition: transform 0.3s ease;
+}
+.toggle-expand-btn.expanded svg {
+    transform: rotate(180deg);
+}
+
 /* Card Body Content styling (supports HTML from feed) */
 .card-body {
     color: var(--text-primary);
     font-size: 15px;
     line-height: 1.7;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
 }
 .card-body p {
     margin-bottom: 12px;

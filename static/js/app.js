@@ -376,6 +376,8 @@ function renderNotesGrid() {
         card.className = `note-card ${classModifier}`;
         card.setAttribute('data-id', item.id);
         
+        const isLong = item.text_content.length > 280;
+        
         card.innerHTML = `
             <div class="card-header">
                 <div class="card-meta">
@@ -390,9 +392,24 @@ function renderNotesGrid() {
                     </button>
                 </div>
             </div>
-            <div class="card-body">
-                ${item.html_content}
-            </div>
+            ${isLong ? `
+                <div class="card-body-wrapper" id="wrapper-${item.id}">
+                    <div class="card-body">
+                        ${item.html_content}
+                    </div>
+                    <div class="card-fade-overlay"></div>
+                </div>
+                <button class="toggle-expand-btn" data-id="${item.id}" aria-expanded="false">
+                    <span>Read More</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                </button>
+            ` : `
+                <div class="card-body">
+                    ${item.html_content}
+                </div>
+            `}
             <div class="card-footer">
                 <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="ext-link-wrapper">
                     <span>View in Official Docs</span>
@@ -408,6 +425,26 @@ function renderNotesGrid() {
             e.stopPropagation();
             openTweetComposer(item);
         });
+        
+        // Add toggle expand listener if content is long
+        if (isLong) {
+            const toggleBtn = card.querySelector('.toggle-expand-btn');
+            const wrapper = card.querySelector('.card-body-wrapper');
+            toggleBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const isExpanded = wrapper.classList.toggle('expanded');
+                toggleBtn.classList.toggle('expanded');
+                
+                toggleBtn.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+                toggleBtn.querySelector('span').textContent = isExpanded ? 'Read Less' : 'Read More';
+                
+                if (isExpanded) {
+                    wrapper.style.maxHeight = `${wrapper.scrollHeight + 20}px`;
+                } else {
+                    wrapper.style.maxHeight = '180px';
+                }
+            });
+        }
         
         notesGrid.appendChild(card);
     });
